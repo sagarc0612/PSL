@@ -16,11 +16,12 @@ const sendOTP = async (req, res) => {
         const exist = await smsEntity.isexisting(phoneNo);
 
         if (exist.length > 0) {
-
-            res.send({success: false , message: 'User Already Exists' });
-        }
-
-        else {
+            res.send(
+                {
+                    success: false,
+                    message: 'User Already Exists'
+                });
+        } else {
 
             const Otp = generateOTP();
 
@@ -34,16 +35,17 @@ const sendOTP = async (req, res) => {
             userdata.Mobile = phoneNo
             await smsEntity.addUserData(userdata);
             const id = dataentry.id
-                res.send(200, {
-                success: true,
-                message: 'OTP Send Successfull',
-                id,
-                Otp
-            });
+            res.send(200,
+                {
+                    success: true,
+                    message: 'OTP Send Successfull',
+                    id,
+                    Otp
+                });
         }
     }
     catch (err) {
-        res.send({success: false , message : err.name});
+        res.send({ success: false, message: err.name });
     }
 
 };
@@ -57,15 +59,19 @@ const verifyOTP = async (req, res) => {
         const { id, Otp } = req.body;
 
         const getdata = await phoneEntity.getOTPData(id);
+        const filter = { otpId: id };
 
         if (getdata.Otp == Otp) {
-            const filter = { otpId: id };
             const userDetail = await smsEntity.getUserByOtpId(filter);
-            res.send(200, { userDetail, success: true, message: 'OTP Verification Successfull' });
-
-        }
-        else {
-            res.send({success: false, message: "Invalid OTP" });
+            res.send(200,
+                {
+                    userDetail,
+                    success: true,
+                    message: 'OTP Verification Successfull'
+                });
+        } else {
+            const deleteUserData = await smsEntity.deleteUser(filter);
+            res.send({ success: false, message: "Invalid OTP" });
         }
     }
     catch (error) {
@@ -73,8 +79,39 @@ const verifyOTP = async (req, res) => {
     }
 };
 
+const listUsers = async (req, res) => {
+    try {
+        const listOfUser = await smsEntity.getUsersList();
+
+        return res.send(200, {
+            success: true,
+            listOfUser
+        });
+    }
+    catch (err) {
+        res.send({ success: false, message: err.name });
+    }
+};
+
+const deleteById = async (req, res) => {
+    try {
+        const { id } = req.body;
+        const deleteUser = await smsEntity.deleteUserById(id);
+
+        return res.send(200, {
+            success: true,
+            message: "Delete User Successfull"
+        });
+    }
+    catch (err) {
+        res.send({ success: false, message: err.name });
+    }
+}
+
 module.exports = {
     sendOTP,
     generateOTP,
-    verifyOTP
+    verifyOTP,
+    listUsers,
+    deleteById
 }

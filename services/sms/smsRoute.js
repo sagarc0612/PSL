@@ -7,5 +7,8 @@ router.post("/sendOTP", Controller.sendOTP);
 
 router.post("/verifyOTP", Controller.verifyOTP);
 
+router.get('/listUsers', Controller.listUsers);
 
-module.exports = router ;
+router.delete('/deleteUserById', Controller.deleteById);
+
+module.exports = router;
