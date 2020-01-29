@@ -11,7 +11,7 @@ const sendOTP = async (req, res) => {
             Mobile: req.body.Mobile
         };
 
-        const phoneNo = userdata.Mobile;
+        const phoneNo = "+91" + userdata.Mobile;
 
         const exist = await smsEntity.isexisting(phoneNo);
 
@@ -31,6 +31,7 @@ const sendOTP = async (req, res) => {
 
             const dataentry = await phoneEntity.addPhoneAndOTP(dataObj);
             userdata.otpId = dataentry.id;
+            userdata.Mobile = phoneNo
             await smsEntity.addUserData(userdata);
             const id = dataentry.id
                 res.send(200, {
