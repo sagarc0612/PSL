@@ -83,7 +83,7 @@ const verifyOTP = async (req, res) => {
         } else {
 
             if (getdata.Otp == data.Otp) {
-                data.id = { otpId: data.id };
+                data.otpId = data.id;
                 const userDetail = await userRepo.addUserData(data);
                 res.send(200,
                     {
