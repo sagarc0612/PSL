@@ -15,11 +15,11 @@ const getUserByOtpId = async (filter) => {
 
 const getUsersList = async () => {
     return await smsEntity.find().lean().exec();
-};
+}
 
 const deleteUser = async (filter) => {
     return smsEntity.findOneAndRemove(filter);
-};
+}
 
 const deleteUserById = async (id) => {
     return smsEntity.findByIdAndDelete(id);
@@ -27,15 +27,11 @@ const deleteUserById = async (id) => {
 
 const updateUser = async (_id, data) => {
     return smsEntity.findOneAndUpdate({ _id }, { $set: {"profileImage" : data} }, { new: true });
-  };
+}
 
 const getUserById = async(id) => {
     return smsEntity.findById(id);
 }
-
-const getMessage = async(id) => {
-    return await smsEntity.find().lean().exec();
-};
 
 module.exports = {
     isexisting,

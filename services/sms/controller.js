@@ -42,7 +42,6 @@ const sendOTP = async (req, res) => {
     catch (err) {
         res.send({ success: false, message: err.name });
     }
-
 };
 
 const generateOTP = () => {
@@ -129,7 +128,7 @@ const deleteById = async (req, res) => {
     catch (err) {
         res.send({ success: false, message: err.name });
     }
-}
+};
 
 const getDataOfOTP = async (id) => {
     try {
@@ -138,7 +137,7 @@ const getDataOfOTP = async (id) => {
     catch (err) {
         res.send({ success: false, message: "Send OTP Again" });
     }
-}
+};
 
 const getById = async (req, res) => {
     try {
@@ -154,7 +153,7 @@ const getById = async (req, res) => {
     catch (err) {
         res.send({ success: false, message: err.name });
     }
-}
+};
 
 const uploadPic = async (req, res) => {
     try {
@@ -172,25 +171,11 @@ const uploadPic = async (req, res) => {
             updateUser,
             message: "Profile Update Successfull"
         });
-
-
     }
     catch (err) {
         res.send({ success: false, message: err.name });
     }
-}
-
-// const getMessage = (req, res) => {
-//     try{
-//         const { id } = req.body;
-//         const userMessages = await userRepo.getMessage(id);
-//     }
-//     catch(err){
-//         res.send({ success: false, message: err.name });
-
-//     }
-// }
-
+};
 
 module.exports = {
     sendOTP,

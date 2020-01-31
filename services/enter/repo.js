@@ -7,7 +7,7 @@ const add = async (userData) => {
 
 const findByEmail = async email => {
    UserEntity.findOne({ email });
-}
+};
 
 const getById = async id => {
   return UserEntity.findById(id).exec();
@@ -15,7 +15,7 @@ const getById = async id => {
 
 const findUserById = async id => {
   return await getById(id);
-}
+};
 
 const deleteUser = async (_id) => {
   return UserEntity.findByIdAndDelete(_id);

@@ -10,8 +10,7 @@ const smsSchema = mongoose.Schema({
     required: true, type: String,
     validate: /^((\+){1}91){1}[1-9]{1}[0-9]{9}$/
   },
-  profileImage: { type: String },
-  message: { type: String }
+  profileImage: { type: String }
 },
   { timestamps: true },
   { collection: "users" }

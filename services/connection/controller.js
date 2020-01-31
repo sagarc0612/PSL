@@ -18,7 +18,7 @@ const addConnection = async (req, res) => {
     catch (err) {
         res.send({ success: false, message: err.name });
     }
-}
+};
 
 const isConnected = async (who, to) => {
     try {
