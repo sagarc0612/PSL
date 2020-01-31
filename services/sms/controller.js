@@ -1,20 +1,18 @@
 const mongoose = require("mongoose");
 
-const smsEntity = require("./repo");
-const phoneEntity = require("./phone/phoneRepo");
+const userRepo = require("./repo");
+const phoneRepo = require("./phone/phoneRepo");
 
 const sendOTP = async (req, res) => {
     try {
-        const userdata = {
+        const data = {
             id: mongoose.Types.ObjectId(),
-            fullname: req.body.fullname,
             Mobile: req.body.Mobile
         };
 
-        const phoneNo = "+91" + userdata.Mobile;
+        const phoneNo = "+91" + data.Mobile;
 
-        const exist = await smsEntity.isexisting(phoneNo);
-
+        const exist = await userRepo.isexisting(phoneNo);
         if (exist.length > 0) {
             res.send(
                 {
@@ -22,7 +20,6 @@ const sendOTP = async (req, res) => {
                     message: 'User Already Exists'
                 });
         } else {
-
             const Otp = generateOTP();
 
             const dataObj = {
@@ -30,18 +27,16 @@ const sendOTP = async (req, res) => {
                 Otp
             }
 
-            const dataentry = await phoneEntity.addPhoneAndOTP(dataObj);
-            userdata.otpId = dataentry.id;
-            userdata.Mobile = phoneNo
-            await smsEntity.addUserData(userdata);
+            const dataentry = await phoneRepo.addPhoneAndOTP(dataObj);
+
             const id = dataentry.id
-            res.send(200,
-                {
-                    success: true,
-                    message: 'OTP Send Successfull',
-                    id,
-                    Otp
-                });
+
+            res.send(200, {
+                success: true,
+                message: 'OTP Send Successfull',
+                id,
+                Otp
+            });
         }
     }
     catch (err) {
@@ -56,36 +51,64 @@ const generateOTP = () => {
 
 const verifyOTP = async (req, res) => {
     try {
-        const { id, Otp } = req.body;
 
-        const getdata = await phoneEntity.getOTPData(id);
-        const filter = { otpId: id };
+        const data = {
 
-        if (getdata.Otp == Otp) {
-            const userDetail = await smsEntity.getUserByOtpId(filter);
-            res.send(200,
+            id: req.body.id,
+            Otp: req.body.Otp,
+            Mobile: req.body.Mobile
+        };
+        const phoneNo = "+91" + data.Mobile;
+
+        const getdata = await getDataOfOTP(data.id);
+
+        data.Mobile = phoneNo
+        const exist = await userRepo.isexisting(data.Mobile);
+        if (exist.length > 0) {
+            res.send(
                 {
-                    userDetail,
-                    success: true,
-                    message: 'OTP Verification Successfull'
+                    success: false,
+                    message: 'User Already Exists'
                 });
+        }
+
+        const timeOfGenetedOtp = getdata.createdAt
+        const currentTime = new Date();
+        const diffMins = Math.round((((currentTime - timeOfGenetedOtp) % 86400000) % 3600000) / 60000);
+
+        if (diffMins > 2) {
+
+            await phoneRepo.deleteOTP(data.id);
+            res.send({ success: false, message: "OTP Expired" });
+
         } else {
-            const deleteUserData = await smsEntity.deleteUser(filter);
-            res.send({ success: false, message: "Invalid OTP" });
+
+            if (getdata.Otp == data.Otp) {
+                data.id = { otpId: data.id };
+                const userDetail = await userRepo.addUserData(data);
+                res.send(200,
+                    {
+                        userDetail,
+                        success: true,
+                        message: 'OTP Verification Successfull'
+                    });
+            } else {
+                res.send({ success: false, message: "Invalid OTP" });
+            }
         }
     }
-    catch (error) {
-        res.send(error);
+    catch (err) {
+        res.send({ success: false, message: err.name });
     }
 };
 
-const listUsers = async (req, res) => {
+const getUserslist = async (req, res) => {
     try {
-        const listOfUser = await smsEntity.getUsersList();
+        const listOfUsers = await userRepo.getUsersList();
 
-        return res.send(200, {
+        res.send(200, {
             success: true,
-            listOfUser
+            listOfUsers
         });
     }
     catch (err) {
@@ -96,9 +119,9 @@ const listUsers = async (req, res) => {
 const deleteById = async (req, res) => {
     try {
         const { id } = req.body;
-        const deleteUser = await smsEntity.deleteUserById(id);
+        const deleteUser = await userRepo.deleteUserById(id);
 
-        return res.send(200, {
+        res.send(200, {
             success: true,
             message: "Delete User Successfull"
         });
@@ -108,10 +131,73 @@ const deleteById = async (req, res) => {
     }
 }
 
+const getDataOfOTP = async (id) => {
+    try {
+        return phoneRepo.getOTPData(id);
+    }
+    catch (err) {
+        res.send({ success: false, message: "Send OTP Again" });
+    }
+}
+
+const getById = async (req, res) => {
+    try {
+        const { id } = req.body;
+        const User = await userRepo.getUserById(id);
+
+        res.send(200, {
+            success: true,
+            User,
+            message: "Get User Successfull"
+        });
+    }
+    catch (err) {
+        res.send({ success: false, message: err.name });
+    }
+}
+
+const uploadPic = async (req, res) => {
+    try {
+        const data = {
+            id: req.body.id,
+            profileImage: req.file.path
+        };
+
+        data.profileImage = "file:" + data.profileImage;
+
+        const updateUser = await userRepo.updateUser(data.id, data.profileImage);
+
+        res.send(200, {
+            success: true,
+            updateUser,
+            message: "Profile Update Successfull"
+        });
+
+
+    }
+    catch (err) {
+        res.send({ success: false, message: err.name });
+    }
+}
+
+// const getMessage = (req, res) => {
+//     try{
+//         const { id } = req.body;
+//         const userMessages = await userRepo.getMessage(id);
+//     }
+//     catch(err){
+//         res.send({ success: false, message: err.name });
+
+//     }
+// }
+
+
 module.exports = {
     sendOTP,
     generateOTP,
     verifyOTP,
-    listUsers,
-    deleteById
+    getById,
+    getUserslist,
+    deleteById,
+    uploadPic
 }

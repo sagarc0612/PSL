@@ -1,27 +1,38 @@
-const mongoose = require("mongoose");
-
-const connectionEntity = require("./repo");
+const connectionRepo = require("./repo");
 
 const addConnection = async (req, res) => {
+    try {
 
-    const { to, who } = req.body;
+        const { to, who } = req.body;
 
-    await isConnected( who, to );
+        await isConnected(who, to);
 
-    const result = connectionEntity.addConnections({ who, to });
+        const result = connectionRepo.addConnections({ who, to });
 
-    res.send(200, {
-        result
-    });
+        res.send(200, {
+            success: true,
+            result,
+            message: "Add Connection Successfull"
+        });
+    }
+    catch (err) {
+        res.send({ success: false, message: err.name });
+    }
 }
 
 const isConnected = async (who, to) => {
-
-    const checkConnection = await connectionEntity.findConnectionCountByUsers( who, to );
-    if (checkConnection > 0) {
-       throw console.error("Already connected");
+    try {
+        const checkConnection = await connectionRepo.findConnectionCountByUsers(who, to);
+        if (checkConnection > 0) {
+            res.send({ message :"Already connected" });
+        }
+        else {
+            res.send(200,{checkConnection, message :"Already connected" });
+        }
     }
-    
+    catch (err) {
+        res.send({ success: false, message: err.name });
+    }
 };
 
 module.exports = {

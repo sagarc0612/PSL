@@ -2,7 +2,7 @@ const connectionEntity = require("./model");
 
 const addConnections = async data => {
     const newConnections = new connectionEntity(data);
-    newConnections.save();
+    return newConnections.save();
   };
 
 const findConnectionCountByUsers = async (who, to) =>
