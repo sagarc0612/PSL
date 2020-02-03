@@ -12,8 +12,11 @@ const smsRouter = require("./services/sms/smsRoute");
 const app = express();
 
 app.use(cors())
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+
+app.use(express.static(__dirname+'/uploads'));
 
 app.listen(process.env.PORT, () => {
   console.log(`connected on this ${process.env.PORT}`);
