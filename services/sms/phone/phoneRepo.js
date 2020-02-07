@@ -13,8 +13,13 @@ const deleteOTP = async (id) => {
     return phoneEntity.findByIdAndDelete(id).lean().exec();
 };
 
+const findByPhone = async (phone) => {
+    return await phoneEntity.find({"phoneNo":phone});
+}
+
 module.exports = {
     addPhoneAndOTP,
     getOTPData,
-    deleteOTP
+    deleteOTP,
+    findByPhone
 } 

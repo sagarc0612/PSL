@@ -14,11 +14,15 @@ const sendOTP = async (req, res) => {
 
         const exist = await userRepo.isexisting(phoneNo);
         if (exist.length > 0) {
-            res.send(
-                {
-                    success: false,
-                    message: 'User Already Exists'
-                });
+            const uu = await phoneRepo.findByPhone(phoneNo);
+            const id = uu[0].id;
+            const Otp = uu[0].Otp;
+            res.send(200, {
+                success: true,
+                message: 'OTP Send Successfull',
+                id,
+                Otp
+            });
         } else {
             const Otp = generateOTP();
 
@@ -64,35 +68,40 @@ const verifyOTP = async (req, res) => {
         data.Mobile = phoneNo
         const exist = await userRepo.isexisting(data.Mobile);
         if (exist.length > 0) {
-            res.send(
-                {
-                    success: false,
-                    message: 'User Already Exists'
-                });
-        }
-
-        const timeOfGenetedOtp = getdata.createdAt
-        const currentTime = new Date();
-        const diffMins = Math.round((((currentTime - timeOfGenetedOtp) % 86400000) % 3600000) / 60000);
-
-        if (diffMins > 2) {
-
-            await phoneRepo.deleteOTP(data.id);
-            res.send({ success: false, message: "OTP Expired" });
-
+            res.send(200, {
+                success: true,
+                userDetail: {
+                    Mobile: exist[0].Mobile,
+                    _id: exist[0]._id,
+                    fullname: exist[0].fullname,
+                    dateOfBirth: exist[0].dateOfBirth,
+                    profileImage: exist[0].profileImage
+                },
+                message: 'OTP Verification Successfull'
+            });
         } else {
+            const timeOfGenetedOtp = getdata.createdAt
+            const currentTime = new Date();
+            const diffMins = Math.round((((currentTime - timeOfGenetedOtp) % 86400000) % 3600000) / 60000);
 
-            if (getdata.Otp == data.Otp) {
-                data.otpId = data.id;
-                const userDetail = await userRepo.addUserData(data);
-                res.send(200,
-                    {
-                        userDetail,
-                        success: true,
-                        message: 'OTP Verification Successfull'
-                    });
+            if (diffMins > 2) {
+                await phoneRepo.deleteOTP(data.id);
+                res.send({ success: false, message: "OTP Expired" });
+
             } else {
-                res.send({ success: false, message: "Invalid OTP" });
+
+                if (getdata.Otp == data.Otp) {
+                    data.otpId = data.id;
+                    const userDetail = await userRepo.addUserData(data);
+                    res.send(200,
+                        {
+                            userDetail,
+                            success: true,
+                            message: 'OTP Verification Successfull'
+                        });
+                } else {
+                    res.send({ success: false, message: "Invalid OTP" });
+                }
             }
         }
     }
@@ -155,27 +164,78 @@ const getById = async (req, res) => {
     }
 };
 
-const uploadPic = async (req, res) => {
+const updatePicAndUser = async (req, res) => {
     try {
+        let profileImage;
+        if (req.file !== undefined) {
+            profileImage = req.file.filename
+        }
         const data = {
             id: req.body.id,
-            profileImage: req.file.path
+            profileImage: profileImage,
+            fullname: req.body.fullname,
+            dateOfBirth: req.body.dateOfBirth
         };
+        const User = await userRepo.getUserById(data.id);
+        if (User !== null) {
+            if (profileImage === undefined) {
+                data.profileImage = User.profileImage;
+            }
+            if (data.fullname === undefined) {
+                data.fullname = User.fullname;
+            }
+            if (data.dateOfBirth === undefined) {
+                data.dateOfBirth = User.dateOfBirth;
+            }
+            const updateUser = await userRepo.updateUser(data.id, data);
 
-        data.profileImage = "file:" + data.profileImage;
+            rres.send(200, {
+                success: true,
+                updateUser,
+                message: "Profile Update Successfull"
+            });
+        } else {
+            res.send({ success: false, message: "User Not Exist" });
+        }
+    }
+    catch (err) {
+        res.send({ success: false, message: err.name });
+    }
+};
 
-        const updateUser = await userRepo.updateUser(data.id, data.profileImage);
+const getMessage = async (req, res) => {
+    try {
 
+        const { id } = req.body;
+        const User = await userRepo.getUserById(id);
         res.send(200, {
             success: true,
-            updateUser,
-            message: "Profile Update Successfull"
+            message: "Profile Update Successfull",
+            User,
+
         });
     }
     catch (err) {
         res.send({ success: false, message: err.name });
     }
 };
+
+
+const sendMessage = async (req, res) => {
+    try {
+        const { id, message } = req.body;
+        const data = {
+            message: message,
+            userId: id
+        };
+        const User = await userRepo.send(data);
+
+        res.sendStatus(200);
+    }
+    catch (err) {
+        res.send({ success: false, message: err.name });
+    }
+}
 
 module.exports = {
     sendOTP,
@@ -184,5 +244,5 @@ module.exports = {
     getById,
     getUserslist,
     deleteById,
-    uploadPic
+    updatePicAndUser
 }

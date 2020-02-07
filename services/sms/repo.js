@@ -1,4 +1,5 @@
 const smsEntity = require("./model");
+const msgEntity = require("./msgModel");
 
 const isexisting = async (MobileNo) => {
     return smsEntity.find({ "Mobile": MobileNo });
@@ -26,11 +27,15 @@ const deleteUserById = async (id) => {
 }
 
 const updateUser = async (_id, data) => {
-    return smsEntity.findOneAndUpdate({ _id }, { $set: {"profileImage" : data} }, { new: true });
+    return smsEntity.findOneAndUpdate({ _id }, { $set:  data} , { new: true });
 }
 
 const getUserById = async(id) => {
     return smsEntity.findById(id);
+}
+
+const getById = async(id) => {
+    return msgEntity.find({"receiverId":id});
 }
 
 module.exports = {
@@ -41,5 +46,6 @@ module.exports = {
     deleteUser,
     deleteUserById,
     updateUser,
-    getUserById
+    getUserById,
+    getById
 }
