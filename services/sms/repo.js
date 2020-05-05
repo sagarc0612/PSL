@@ -1,4 +1,8 @@
 const smsEntity = require("./model");
+<<<<<<< Updated upstream
+=======
+const mongoose = require("mongoose");
+>>>>>>> Stashed changes
 
 const isexisting = async (MobileNo) => {
     return smsEntity.find({ "Mobile": MobileNo });
@@ -14,7 +18,7 @@ const getUserByOtpId = async (filter) => {
 }
 
 const getUsersList = async () => {
-    return await smsEntity.find().lean().exec();
+    return await smsEntity.find({}).lean().exec();
 }
 
 const deleteUser = async (filter) => {
@@ -26,11 +30,19 @@ const deleteUserById = async (id) => {
 }
 
 const updateUser = async (_id, data) => {
+<<<<<<< Updated upstream
     return smsEntity.findOneAndUpdate({ _id }, { $set: {"profileImage" : data} }, { new: true });
 }
 
 const getUserById = async(id) => {
     return smsEntity.findById(id);
+=======
+    return smsEntity.findOneAndUpdate({ _id }, { $set: data }, { new: true });
+}
+
+const getUserById = async (id) => {
+    return  smsEntity.findById(id); 
+>>>>>>> Stashed changes
 }
 
 module.exports = {
