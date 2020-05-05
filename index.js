@@ -17,17 +17,12 @@ const userRouter = require("./services/enter/userRoute");
 const connectionRouter = require("./services/connection/connectionRoute");
 const smsRouter = require("./services/sms/smsRoute");
 
-<<<<<<< Updated upstream
-const app = express();
-
-=======
 const msgRepo = require("./services/sms/msg/msgRepo");
 const repo = require("./services/sms/repo");
 
 const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
->>>>>>> Stashed changes
 app.use(cors())
 
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -41,8 +36,6 @@ app.listen(process.env.PORT, () => {
   mongoose.Promise = global.Promise;
 });
 
-<<<<<<< Updated upstream
-=======
 firebase.initializeApp({
   credential: firebase.credential.cert(serviceAccount),
   databaseURL: "mongodb://localhost:27017/admin"
@@ -177,7 +170,6 @@ io.on('connection', async socket => {
 
 //setTimeout(controller.deleteMessage, 100000000000);
 
->>>>>>> Stashed changes
 app.use("/router", userRouter);
 app.use("/connection", connectionRouter);
 app.use("/sms", smsRouter);

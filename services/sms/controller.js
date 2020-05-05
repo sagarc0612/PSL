@@ -64,37 +64,6 @@ const verifyOTP = async (req, res) => {
         data.Mobile = phoneNo
         const exist = await userRepo.isexisting(data.Mobile);
         if (exist.length > 0) {
-<<<<<<< Updated upstream
-            res.send(
-                {
-                    success: false,
-                    message: 'User Already Exists'
-                });
-        }
-
-        const timeOfGenetedOtp = getdata.createdAt
-        const currentTime = new Date();
-        const diffMins = Math.round((((currentTime - timeOfGenetedOtp) % 86400000) % 3600000) / 60000);
-
-        if (diffMins > 2) {
-
-            await phoneRepo.deleteOTP(data.id);
-            res.send({ success: false, message: "OTP Expired" });
-
-        } else {
-
-            if (getdata.Otp == data.Otp) {
-                data.otpId = data.id;
-                const userDetail = await userRepo.addUserData(data);
-                res.send(200,
-                    {
-                        userDetail,
-                        success: true,
-                        message: 'OTP Verification Successfull'
-                    });
-            } else {
-                res.send({ success: false, message: "Invalid OTP" });
-=======
             exist[0].token = data.token
             res.send(200, {
                 success: true,
@@ -131,7 +100,6 @@ const verifyOTP = async (req, res) => {
                 } else {
                     res.send({ success: false, message: "Invalid OTP" });
                 }
->>>>>>> Stashed changes
             }
         }
     }
@@ -198,26 +166,16 @@ const uploadPic = async (req, res) => {
             id: req.body.id,
             profileImage: req.file.path
         };
-
-<<<<<<< Updated upstream
         data.profileImage = "file:" + data.profileImage;
 
         const updateUser = await userRepo.updateUser(data.id, data.profileImage);
-
-        res.send(200, {
-            success: true,
-            updateUser,
-            message: "Profile Update Successfull"
-=======
             res.send(200, {
                 success: true,
                 updateUser,
                 message: "Profile Update Successfull"
             });
-        } else {
-            res.send({ success: false, message: "User Not Exist" });
-        }
-    }
+        } 
+    
     catch (err) {
         res.send({ success: false, message: err.name });
     }
@@ -277,7 +235,6 @@ const multipleUpdateMessages = async (req, res) => {
             success: true,
             message: "Selected Messages Successfully Deleted",
             changeMultiple
->>>>>>> Stashed changes
         });
     }
     catch (err) {
@@ -285,8 +242,6 @@ const multipleUpdateMessages = async (req, res) => {
     }
 }
 
-<<<<<<< Updated upstream
-=======
 const deleteMessage = async (req, res) => {
     try {
         const deleteableMessages = await msgRepo.deleteableMessages();
@@ -358,7 +313,6 @@ const receiverAndSenderIds = async (req, res) => {
 
 }
 
->>>>>>> Stashed changes
 module.exports = {
     sendOTP,
     generateOTP,
@@ -366,14 +320,10 @@ module.exports = {
     getById,
     getUserslist,
     deleteById,
-<<<<<<< Updated upstream
-    uploadPic
-=======
     updatePicAndUser,
     updateStatusByMsgId,
     multipleUpdateMessages,
     deleteMessage,
     getConnectedUser,
     receiverAndSenderIds
->>>>>>> Stashed changes
 }
