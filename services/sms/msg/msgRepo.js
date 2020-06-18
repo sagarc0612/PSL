@@ -69,6 +69,37 @@ const getuserByNumber = async(phone) => {
 const getUserById = async (id) => {
     return msgEntity.find({$or:[ {"senderId":id}, {'receiverId':id}]});
 }
+const deleteableMessages = async () => {
+    return msgEntity.aggregate([{
+{
+    $lookup: {
+      from: "allocation",
+      localField: "allocation",
+      foreignField: "_id",
+      as: "allocation"
+    }
+  },
+  {
+    $project: {
+      to: 1,
+      from: 1,
+      allocation: {
+        $arrayElemAt: ["$allocation", 0]
+      }
+    }
+  },
+  {
+    $match: {
+      from: hp,
+      "allocation.product_allocation.municipality_id": mp
+    }
+  },
+  {
+    $count: "size"
+  }
+]);
+    }
+
 
 module.exports = {
     addMessage,
